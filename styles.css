@@ -1,0 +1,255 @@
+/* ====== Variabile și resetări ====== */
+:root {
+    --bg-dark: #0b0f19;
+    --bg-card: #111827;
+    --bg-input: #1a1f2e;
+    --border-color: #2d3748;
+    --accent: #00d4ff;
+    --accent-hover: #00b8e6;
+    --danger: #ff4d4d;
+    --warning: #ffb84d;
+    --success: #2ecc71;
+    --text-primary: #e0e0e0;
+    --text-secondary: #9ca3af;
+    --transition-speed: 0.2s;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    padding-top: 76px; /* pentru navbar fixed */
+    position: relative;
+}
+
+/* Pattern de fundal subtil */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* ====== Navbar ====== */
+.navbar {
+    background-color: rgba(13, 17, 23, 0.95) !important;
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    transition: background-color var(--transition-speed) ease;
+}
+
+.navbar-brand {
+    color: var(--accent) !important;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 1.5rem;
+}
+
+.navbar-brand i {
+    color: var(--accent);
+}
+
+/* ====== Container principal ====== */
+.main-content {
+    padding: 2rem 1rem;
+}
+
+/* ====== Carduri generale ====== */
+.search-card,
+.result-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: transform var(--transition-speed) ease,
+                box-shadow var(--transition-speed) ease,
+                border-color var(--transition-speed) ease;
+}
+
+.search-card:hover,
+.result-card:hover {
+    border-color: rgba(0, 212, 255, 0.3);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.search-card {
+    background: linear-gradient(145deg, #111827, #0d1420);
+}
+
+.result-card h5 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* ====== Formulare ====== */
+.form-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+}
+
+.form-select,
+.form-control {
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 8px;
+    transition: border-color var(--transition-speed) ease,
+                box-shadow var(--transition-speed) ease;
+}
+
+.form-select:focus,
+.form-control:focus {
+    background-color: var(--bg-input);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.15);
+    color: #fff;
+}
+
+.form-select option {
+    background-color: var(--bg-card);
+}
+
+/* ====== Buton Scan ====== */
+.btn-scan {
+    background-color: var(--accent);
+    border: none;
+    font-weight: 600;
+    color: #0b0f19;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    transition: background-color var(--transition-speed) ease,
+                transform var(--transition-speed) ease;
+}
+
+.btn-scan:hover {
+    background-color: var(--accent-hover);
+    color: #0b0f19;
+    transform: translateY(-1px);
+}
+
+.btn-scan:active {
+    transform: translateY(0);
+}
+
+/* ====== Spinner de încărcare ====== */
+.loading-spinner {
+    display: none;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.spinner-border {
+    color: var(--accent);
+    width: 3rem;
+    height: 3rem;
+}
+
+/* ====== Badge-uri reputație ====== */
+.badge-reputation {
+    font-size: 1rem;
+    padding: 0.5em 1.2em;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.rep-high {
+    background: var(--success);
+    color: #fff;
+}
+
+.rep-medium {
+    background: var(--warning);
+    color: #212529;
+}
+
+.rep-low {
+    background: var(--danger);
+    color: #fff;
+}
+
+/* ====== Detalii tehnice ====== */
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: right;
+    word-break: break-word;
+}
+
+/* ====== Mesaj de eroare ====== */
+.alert-danger {
+    background-color: rgba(255, 77, 77, 0.1);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    border-radius: 8px;
+}
+
+/* ====== Placeholder grafic ====== */
+.chart-placeholder {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    border: 1px dashed var(--border-color);
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 1.5rem 0.5rem;
+    }
+    .search-card {
+        padding: 1rem;
+    }
+    .btn-scan {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    .detail-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .detail-value {
+        text-align: left;
+        margin-top: 0.2rem;
+    }
+}
