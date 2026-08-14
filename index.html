@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberScan – Threat Lookup Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome pentru iconițe -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --bg-card: #111827;
+            --accent: #00d4ff;
+            --danger: #ff4d4d;
+            --warning: #ffb84d;
+            --success: #2ecc71;
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background-color: #0d1117 !important;
+            border-bottom: 1px solid #1f2937;
+        }
+        .navbar-brand {
+            color: var(--accent) !important;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .search-card {
+            background: var(--bg-card);
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .form-select, .form-control {
+            background-color: #1a1f2e;
+            border: 1px solid #2d3748;
+            color: #e0e0e0;
+        }
+        .form-select:focus, .form-control:focus {
+            background-color: #1a1f2e;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(0,212,255,0.25);
+            color: #fff;
+        }
+        .btn-scan {
+            background-color: var(--accent);
+            border: none;
+            font-weight: 600;
+            color: #0b0f19;
+        }
+        .btn-scan:hover {
+            background-color: #00b8e6;
+            color: #0b0f19;
+        }
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .result-card h5 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .badge-reputation {
+            font-size: 1rem;
+            padding: 0.5em 1em;
+            border-radius: 20px;
+        }
+        .rep-high { background: #2ecc71; color: #fff; }
+        .rep-medium { background: #f39c12; color: #fff; }
+        .rep-low { background: #e74c3c; color: #fff; }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #1f2937;
+        }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-label { color: #9ca3af; }
+        .detail-value { font-weight: 500; }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .spinner-border {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shield-alt me-2"></i>CyberScan
+            </a>
+            <div class="ms-auto">
+                <span class="badge bg-dark border border-secondary">v0.1 – Interfață demo</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main container -->
+    <div class="container py-5">
+        <!-- Search section -->
+        <div class="search-card">
+            <h4 class="mb-4"><i class="fas fa-search me-2"></i>Analiză indicator de compromitere (IOC)</h4>
+            <form id="scanForm" class="row g-3">
+                <div class="col-md-4">
+                    <select id="typeSelect" class="form-select">
+                        <option value="ip">Adresă IP</option>
+                        <option value="domain">Domeniu</option>
+                        <option value="url">URL</option>
+                        <option value="hash">Hash fișier</option>
+                        <option value="email">Email</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" id="queryInput" class="form-control" placeholder="Introduceți indicatorul..." required>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-scan w-100">
+                        <i class="fas fa-bolt me-1"></i> Scanează
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Se încarcă...</span>
+            </div>
+            <p class="mt-2">Interogăm API-urile...</p>
+        </div>
+
+        <!-- Results section (hidden until search) -->
+        <div id="resultsContainer" style="display: none;">
+            <!-- Result cards will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Main script -->
+    <script>
+        // Date fictive pentru demonstrație
+        const mockData = {
+            ip: {
+                reputation: 85,
+                country: 'România',
+                isp: 'Vodafone Romania',
+                asn: 'AS12302',
+                reports: 12,
+                lastReported: '2025-03-15',
+                tags: ['ssh', 'brute-force', 'scanning']
+            },
+            domain: {
+                reputation: 42,
+                registrar: 'Namecheap',
+                creationDate: '2024-01-10',
+                resolvedIp: '104.21.23.45',
+                malicious: true,
+                threatType: 'phishing'
+            },
+            url: {
+                reputation: 15,
+                detectionRatio: '7/64',
+                scanDate: '2025-04-01',
+                categories: ['phishing', 'malware'],
+                finalUrl: 'https://example.com/login'
+            },
+            hash: {
+                reputation: 0,
+                detectionRatio: '56/70',
+                firstSeen: '2025-02-20',
+                lastSeen: '2025-03-30',
+                fileType: 'Win32 EXE',
+                tags: ['trojan', 'emotet']
+            },
+            email: {
+                breaches: 5,
+                pwned: true,
+                lastBreach: '2024-11-12',
+                sources: ['LinkedIn', 'Adobe', 'Canva']
+            }
+        };
+
+        // Funcție pentru a afișa rezultate în funcție de tip
+        function displayResults(type) {
+            const data = mockData[type];
+            if (!data) return;
+
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = ''; // clear
+
+            // Card principal: Reputație
+            const repCard = document.createElement('div');
+            repCard.className = 'result-card';
+            repCard.innerHTML = `
+                <h5><i class="fas fa-gavel me-2"></i>Reputație generală</h5>
+                <div class="d-flex align-items-center">
+                    <span class="badge badge-reputation ${
+                        data.reputation > 70 ? 'rep-high' : data.reputation > 30 ? 'rep-medium' : 'rep-low'
+                    }">Scor: ${data.reputation}/100</span>
+                    <span class="ms-3 text-muted">${
+                        data.reputation > 70 ? 'Curat' : data.reputation > 30 ? 'Suspect' : 'Malițios'
+                    }</span>
+                </div>
+            `;
+            container.appendChild(repCard);
+
+            // Card secundar: Detalii specifice tipului
+            const detailCard = document.createElement('div');
+            detailCard.className = 'result-card';
+            let detailsHtml = '<h5><i class="fas fa-info-circle me-2"></i>Detalii tehnice</h5>';
+
+            if (type === 'ip') {
+                detailsHtml += `
+                    <div class="detail-item"><span class="detail-label">Țară</span><span class="detail-value">${data.country}</span></div>
+                    <div class="detail-item"><span class="detail-label">ISP</span><span class="detail-value">${data.isp}</span></div>
+                    <div class="detail-item"><span class="detail-label">ASN</span><span class="detail-value">${data.asn}</span></div>
+                    <div class="detail-item"><span class="detail-label">Număr rapoarte</span><span class="detail-value">${data.reports}</span></div>
+                    <div class="detail-item"><span class="detail-label">Ultimul raport</span><span class="detail-value">${data.lastReported}</span></div>
+                    <div class="detail-item"><span class="detail-label">Tag-uri</span><span class="detail-value">${data.tags.join(', ')}</span></div>
+                `;
+            } else if (type === 'domain') {
+                detailsHtml += `
+                    <div class="detail-item"><span class="detail-label">Registrar</span><span class="detail-value">${data.registrar}</span></div>
+                    <div class="detail-item"><span class="detail-label">Data creării</span><span class="detail-value">${data.creationDate}</span></div>
+                    <div class="detail-item"><span class="detail-label">IP rezolvat</span><span class="detail-value">${data.resolvedIp}</span></div>
+                    <div class="detail-item"><span class="detail-label">Malițios</span><span class="detail-value">${data.malicious ? 'Da' : 'Nu'}</span></div>
+                    <div class="detail-item"><span class="detail-label">Tip amenințare</span><span class="detail-value">${data.threatType}</span></div>
+                `;
+            } else if (type === 'url') {
+                detailsHtml += `
+                    <div class="detail-item"><span class="detail-label">Rată detecție</span><span class="detail-value">${data.detectionRatio}</span></div>
+                    <div class="detail-item"><span class="detail-label">Data scanării</span><span class="detail-value">${data.scanDate}</span></div>
+                    <div class="detail-item"><span class="detail-label">Categorii</span><span class="detail-value">${data.categories.join(', ')}</span></div>
+                    <div class="detail-item"><span class="detail-label">URL final</span><span class="detail-value">${data.finalUrl}</span></div>
+                `;
+            } else if (type === 'hash') {
+                detailsHtml += `
+                    <div class="detail-item"><span class="detail-label">Rată detecție</span><span class="detail-value">${data.detectionRatio}</span></div>
+                    <div class="detail-item"><span class="detail-label">Prima vedere</span><span class="detail-value">${data.firstSeen}</span></div>
+                    <div class="detail-item"><span class="detail-label">Ultima vedere</span><span class="detail-value">${data.lastSeen}</span></div>
+                    <div class="detail-item"><span class="detail-label">Tip fișier</span><span class="detail-value">${data.fileType}</span></div>
+                    <div class="detail-item"><span class="detail-label">Tag-uri</span><span class="detail-value">${data.tags.join(', ')}</span></div>
+                `;
+            } else if (type === 'email') {
+                detailsHtml += `
+                    <div class="detail-item"><span class="detail-label">Număr breșe</span><span class="detail-value">${data.breaches}</span></div>
+                    <div class="detail-item"><span class="detail-label">Compromis</span><span class="detail-value">${data.pwned ? 'Da' : 'Nu'}</span></div>
+                    <div class="detail-item"><span class="detail-label">Ultima breșă</span><span class="detail-value">${data.lastBreach}</span></div>
+                    <div class="detail-item"><span class="detail-label">Surse</span><span class="detail-value">${data.sources.join(', ')}</span></div>
+                `;
+            }
+            detailCard.innerHTML += detailsHtml;
+            container.appendChild(detailCard);
+
+            // Card pentru istoric/rapoarte (placeholder)
+            const historyCard = document.createElement('div');
+            historyCard.className = 'result-card';
+            historyCard.innerHTML = `
+                <h5><i class="fas fa-chart-line me-2"></i>Istoric rapoarte</h5>
+                <p class="text-muted">Graficul va fi integrat aici folosind Chart.js.</p>
+                <div class="bg-dark p-3 rounded" style="height: 150px; display: flex; align-items: center; justify-content: center;">
+                    <span class="text-secondary">[Placeholder pentru grafic]</span>
+                </div>
+            `;
+            container.appendChild(historyCard);
+
+            // Afișăm containerul
+            container.style.display = 'block';
+        }
+
+        // Gestionăm trimiterea formularului
+        document.getElementById('scanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const type = document.getElementById('typeSelect').value;
+            const query = document.getElementById('queryInput').value.trim();
+            if (!query) return;
+
+            // Simulăm încărcarea
+            const spinner = document.getElementById('loadingSpinner');
+            const results = document.getElementById('resultsContainer');
+            spinner.style.display = 'block';
+            results.style.display = 'none';
+
+            setTimeout(() => {
+                spinner.style.display = 'none';
+                displayResults(type);
+            }, 1500); // simulăm delay de rețea
+        });
+    </script>
+</body>
+</html>
