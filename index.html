@@ -18,8 +18,11 @@
             <a class="navbar-brand" href="#">
                 <i class="fas fa-shield-alt me-2"></i>CyberScan
             </a>
-            <div class="ms-auto">
-                <span class="badge bg-dark border border-secondary">v0.1 – Interfață demo</span>
+            <div class="ms-auto d-flex align-items-center">
+                <span class="badge bg-dark border border-secondary me-3">v0.1 – Static</span>
+                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                    <i class="fas fa-cog"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -64,6 +67,29 @@
         <!-- Results section -->
         <div id="resultsContainer" style="display: none;">
             <!-- Result cards will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Modal pentru setări API -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="settingsModalLabel">Setări API</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="hibpKey" class="form-label">Cheie API Have I Been Pwned (opțional)</label>
+                        <input type="password" class="form-control" id="hibpKey" placeholder="Introduceți cheia HIBP">
+                        <div class="form-text text-muted">Obțineți o cheie gratuită de la haveibeenpwned.com/API/Key. Este salvată local în browser.</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
+                    <button type="button" class="btn btn-primary" id="saveHibpKey">Salvează</button>
+                </div>
+            </div>
         </div>
     </div>
 
