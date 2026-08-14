@@ -1,4 +1,4 @@
-/* ====== Variabile și resetări ====== */
+l/* ====== Variabile și resetări ====== */
 :root {
     --bg-dark: #0b0f19;
     --bg-card: #111827;
@@ -220,6 +220,13 @@ body::before {
     border-radius: 8px;
 }
 
+.alert-success {
+    background-color: rgba(46, 204, 113, 0.1);
+    border: 1px solid var(--success);
+    color: var(--success);
+    border-radius: 8px;
+}
+
 /* ====== Placeholder grafic ====== */
 .chart-placeholder {
     background-color: rgba(0,0,0,0.2);
@@ -230,6 +237,41 @@ body::before {
     justify-content: center;
     color: var(--text-secondary);
     border: 1px dashed var(--border-color);
+}
+
+/* ====== Modal (setări) ====== */
+.modal-content.bg-dark {
+    background-color: var(--bg-card);
+}
+
+.modal-header.border-secondary,
+.modal-footer.border-secondary {
+    border-color: var(--border-color) !important;
+}
+
+.modal-title {
+    color: var(--accent);
+}
+
+/* ====== Tabele (rapoarte) ====== */
+.table-dark {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(255,255,255,0.03);
+    color: var(--text-primary);
+}
+
+.table-dark th,
+.table-dark td {
+    border-color: var(--border-color);
+}
+
+/* ====== Listă breșe ====== */
+.list-group-item.bg-dark {
+    background-color: var(--bg-card) !important;
+}
+
+.list-group-item.border-secondary {
+    border-color: var(--border-color) !important;
 }
 
 /* ====== Responsive ====== */
